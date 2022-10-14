@@ -1,42 +1,59 @@
 package com.pradeep.todo.services;
 
-import java.util.ArrayList;
-
-import org.springframework.stereotype.Component;
 import java.util.List;
+import java.util.Optional;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import com.pradeep.todo.dao.TodoRepository;
 import com.pradeep.todo.entities.Todo;
 
 @Component
 public class TodoService{
 
-    private static List<Todo> list=new ArrayList<>();
+    @Autowired
+    private TodoRepository todoRepository;
 
-    static{
-        list.add(new Todo(101,"submit assignment tomorrow","Oct 13 5:20 PM"));
-        list.add(new Todo(102,"watch breaking bad s2 ep2","Oct 13 5:20 PM"));
-        list.add(new Todo(103,"go to shopping","Oct 13 5:20 PM"));
-        list.add(new Todo(104,"create a minecraft server","Oct 13 5:20 PM"));
-    }
+    
 
     //get all todos
     public List<Todo> getAllTodos(){
+        List<Todo> list=(List<Todo>) this.todoRepository.findAll();
         return list;
+        
     }
 
     //get single todo with id
     public Todo getTodoById(int id){
-       Todo s=new Todo();
-        for(int i=0;i<list.size();i++){
-            if (list.get(i).getId()==id) {
-                s=list.get(i);
-
-            }
-        }
-        return s;
+       Optional<Todo> s=null;
+       try{
+            s=todoRepository.findById(id);
+       }catch(Exception e){
+            e.printStackTrace();
+       }
+        return s.get();
         
     }
+
+    public Todo addTodo(Todo todo){
+        Todo temp=todoRepository.save(todo);
+        return temp;
+    }
+
+    //  delete todo with id
+     public Todo deleteTodo(int id){
+        Todo s=new Todo();
+        
+            s=todoRepository.findById(id).get();
+            if(s.getBody()!=null){
+                todoRepository.deleteById(id);
+            }
+            return s;
+
+         
+     }
+
+
 
 
 }
